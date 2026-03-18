@@ -1,9 +1,12 @@
 package structs
+
+
+
 type File struct {
 	Path	string
 	status  StatusFile
 	ReducePaths []string
-	OutputPath string
+	OutputPaths map[int]string
 
 
 }
@@ -12,6 +15,7 @@ func NewFile(path string) File {
 		Path: path,
 		status: NotProcessed,
 		ReducePaths: []string{},
+		OutputPaths: make(map[int]string),
 	}
 }
 

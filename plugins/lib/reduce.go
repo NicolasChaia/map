@@ -7,21 +7,38 @@ import (
 	"strings"
 )
 
-func Reduce(file structs.File, values []structs.KeyValue) structs.File {
-	counts := make(map[string]int)
-	for _, kv := range values {
-		counts[kv.Key] += kv.Value
+func Reduce(file structs.File, reduceIndex int) structs.File {
+	if reduceIndex < 0 || reduceIndex >= len(file.ReducePaths) {
+		return file
 	}
 
-	result := ""
-	for word, count := range counts {
-		result += word + ", " + strconv.Itoa(count) + "\n"
-	}
-	file_csv := strings.Split((file.Path), ".txt")[0] + ".csv"
-	err := os.WriteFile(file_csv, []byte(result), 0644)
+	counts := make(map[string]int)
+	values, err := os.ReadFile(file.ReducePaths[reduceIndex])
 	if err != nil {
 		return file
 	}
-	file.OutputPath = file_csv
+
+	for _, line := range strings.Split(string(values), "\n") {
+		key, valueText, ok := strings.Cut(line, ",")
+		if !ok {
+			continue
+		}
+		count, err := strconv.Atoi(valueText)
+		if err != nil {
+			continue
+		}
+		counts[key] += count
+	}
+
+	fileCSV := strings.TrimSuffix(file.Path, ".txt") + "r_" + strconv.Itoa(reduceIndex) + ".csv"
+	var csvContent strings.Builder
+	for key, value := range counts {
+		csvContent.WriteString(key + "," + strconv.Itoa(value) + "\n")
+	}
+	if err := os.WriteFile(fileCSV, []byte(csvContent.String()), 0644); err != nil {
+		return file
+	}
+
+	file.OutputPaths[reduceIndex] = fileCSV
 	return file
 }

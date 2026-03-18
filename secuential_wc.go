@@ -1,11 +1,13 @@
 package main
 
 import (
+	structs "Desktop/mr/structs"
 	"fmt"
 	"os"
 	"plugin"
-	structs "Desktop/mr/structs"
 )
+
+const reducerCount = 1
 
 func main() {
 	args := os.Args[1:]
@@ -33,9 +35,9 @@ func main() {
 			continue
 		}
 
-		mapped := mapFunc(*file)
-		reducedFile := reduceFunc(*file, mapped)
-		output[reducedFile.OutputPath] = reducedFile.OutputPath
+		mappedFile := mapFunc(*file, reducerCount)
+		reducedFile := reduceFunc(mappedFile, 0)
+		output[reducedFile.OutputPaths[0]] = reducedFile.OutputPaths[0]
 		shelve.MarkFileFinished(file)
 	}
 	for _, path := range output {
@@ -43,19 +45,17 @@ func main() {
 	}
 }
 
-
-
-func findFuncs(p *plugin.Plugin) (func(structs.File) []structs.KeyValue, func(structs.File, []structs.KeyValue) structs.File) {
+func findFuncs(p *plugin.Plugin) (func(structs.File, int) structs.File, func(structs.File, int) structs.File) {
 	mapSymbol, err := p.Lookup("Map")
 	if err != nil {
 		panic(err)
 	}
-	mapFunc := mapSymbol.(func(structs.File) []structs.KeyValue)
-	
+	mapFunc := mapSymbol.(func(structs.File, int) structs.File)
+
 	reduceSymbol, err := p.Lookup("Reduce")
 	if err != nil {
 		panic(err)
 	}
-	reduceFunc := reduceSymbol.(func(structs.File, []structs.KeyValue) structs.File)
+	reduceFunc := reduceSymbol.(func(structs.File, int) structs.File)
 	return mapFunc, reduceFunc
 }

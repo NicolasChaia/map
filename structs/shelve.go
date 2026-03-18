@@ -1,16 +1,13 @@
 package structs
 
 type Shelve struct {
-	files []File
+	files         []File
 	filesFinished int
 }
 
 func (s *Shelve) AddFiles(file_path []string) {
 	for _, path := range file_path {
-		s.files = append(s.files, File{
-			Path:   path,
-			status: NotProcessed,
-		})
+		s.files = append(s.files, NewFile(path))
 	}
 }
 
@@ -32,5 +29,3 @@ func (s *Shelve) MarkFileFinished(file *File) {
 func (s *Shelve) AllFilesFinished() bool {
 	return s.filesFinished == len(s.files)
 }
-
-

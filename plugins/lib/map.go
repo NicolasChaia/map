@@ -1,30 +1,36 @@
 package lib
 
 import (
-	"sort"
-
 	"Desktop/mr/structs"
+	"fmt"
 	"os"
 	"strings"
+	"unicode"
+	
 )
 
-// KeyValue represents a tuple (string, int) for map output.
-type KeyValue struct {
-	Key   string
-	Value int
+
+
+func normalizeWord(word string) string {
+	word = strings.ToLower(word)
+	return strings.TrimFunc(word, func(r rune) bool {
+		return unicode.IsPunct(r) || unicode.IsSymbol(r)
+	})
 }
 
-func Map(file structs.File) []KeyValue {
+func Map(file structs.File) []structs.KeyValue {
+	fmt.Println("Mapping file:", file.Path)
 	data, err := os.ReadFile(file.Path)
 	if err != nil {
-		return []KeyValue{}
+		return []structs.KeyValue{}
 	}
-	result := []KeyValue{}
+	result := []structs.KeyValue{}
 	for _, word := range strings.Fields(string(data)) {
-		result = append(result, KeyValue{Key: word, Value: 1})
+		word = normalizeWord(word)
+		if word == "" {
+			continue
+		}
+		result = append(result, structs.KeyValue{Key: word, Value: 1})
 	}
-	sort.Slice(result, func(i, j int) bool {
-		return result[i].Key < result[j].Key
-	})
 	return result
 }

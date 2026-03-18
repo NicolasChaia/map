@@ -2,12 +2,12 @@ package lib
 
 import (
 	"Desktop/mr/structs"
-	"strconv"
 	"os"
-
+	"strconv"
+	"strings"
 )
 
-func Reduce(file structs.File, values []KeyValue) structs.File {
+func Reduce(file structs.File, values []structs.KeyValue) structs.File {
 	counts := make(map[string]int)
 	for _, kv := range values {
 		counts[kv.Key] += kv.Value
@@ -15,9 +15,9 @@ func Reduce(file structs.File, values []KeyValue) structs.File {
 
 	result := ""
 	for word, count := range counts {
-		result += word + ": " + strconv.Itoa(count) + "\n"
+		result += word + ", " + strconv.Itoa(count) + "\n"
 	}
-	file_csv := file.Path + ".csv"
+	file_csv := strings.Split((file.Path), ".txt")[0] + ".csv"
 	err := os.WriteFile(file_csv, []byte(result), 0644)
 	if err != nil {
 		return file

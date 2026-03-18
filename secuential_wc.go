@@ -4,12 +4,8 @@ import (
 	"fmt"
 	"os"
 	"plugin"
-
-	mrplug "Desktop/mr/plugins/lib"
 	structs "Desktop/mr/structs"
 )
-
-/// go run secuential_wc.go <input_files> wc.go
 
 func main() {
 	args := os.Args[1:]
@@ -28,17 +24,7 @@ func main() {
 		panic(err)
 	}
 
-	mapSymbol, err := p.Lookup("Map")
-	if err != nil {
-		panic(err)
-	}
-	mapFunc := mapSymbol.(func(structs.File) []mrplug.KeyValue)
-
-	reduceSymbol, err := p.Lookup("Reduce")
-	if err != nil {
-		panic(err)
-	}
-	reduceFunc := reduceSymbol.(func(structs.File, []mrplug.KeyValue) structs.File)
+	mapFunc, reduceFunc := findFuncs(p)
 
 	output := make(map[string]string)
 	for !shelve.AllFilesFinished() {
@@ -55,4 +41,21 @@ func main() {
 	for _, path := range output {
 		fmt.Printf("Output file: %s\n", path)
 	}
+}
+
+
+
+func findFuncs(p *plugin.Plugin) (func(structs.File) []structs.KeyValue, func(structs.File, []structs.KeyValue) structs.File) {
+	mapSymbol, err := p.Lookup("Map")
+	if err != nil {
+		panic(err)
+	}
+	mapFunc := mapSymbol.(func(structs.File) []structs.KeyValue)
+	
+	reduceSymbol, err := p.Lookup("Reduce")
+	if err != nil {
+		panic(err)
+	}
+	reduceFunc := reduceSymbol.(func(structs.File, []structs.KeyValue) structs.File)
+	return mapFunc, reduceFunc
 }

@@ -1,18 +1,18 @@
 package main
 
 import (
-	mrplug "Desktop/mr/plugins/lib"
+	lib "Desktop/mr/plugins/lib"
 	"Desktop/mr/structs"
 )
 
 // Map is exported as plugin symbol and delegates to lib.Map.
-func Map(file structs.File) []mrplug.KeyValue {
-	return mrplug.Map(file)
+func Map(file structs.File) []structs.KeyValue {
+	return lib.Map(file)
 }
 
 // Reduce is exported as plugin symbol and delegates to lib.Reduce.
-func Reduce(file structs.File, valores []mrplug.KeyValue) structs.File {
-	return mrplug.Reduce(file, valores)
+func Reduce(file structs.File, valores []structs.KeyValue) structs.File {
+	return lib.Reduce(file, valores)
 }
 
 func main() {}

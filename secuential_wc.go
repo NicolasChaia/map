@@ -10,6 +10,10 @@ import (
 const reducerCount = 1
 
 func main() {
+	runSequential()
+}
+
+func runSequential() {
 	args := os.Args[1:]
 	if len(args) < 2 {
 		fmt.Println("Usage: go run secuential_wc.go <input_files...> <plugin.so>")

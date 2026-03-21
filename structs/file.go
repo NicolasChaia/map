@@ -1,19 +1,16 @@
 package structs
 
-
-
 type File struct {
-	Path	string
-	status  StatusFile
+	Path        string
+	status      StatusFile
 	ReducePaths []string
 	OutputPaths map[int]string
-
-
 }
+
 func NewFile(path string) File {
 	return File{
-		Path: path,
-		status: NotProcessed,
+		Path:        path,
+		status:      NotProcessed,
 		ReducePaths: []string{},
 		OutputPaths: make(map[int]string),
 	}
@@ -27,6 +24,11 @@ func (f *File) setStatus(status StatusFile) {
 	f.status = status
 }
 
-func (f *File) addReducePath(path string) {
+func (f *File) AddReducePath(path string) {
 	f.ReducePaths = append(f.ReducePaths, path)
 }
+
+func (f *File) GetPath() string {
+	return f.Path
+}
+

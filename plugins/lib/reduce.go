@@ -1,21 +1,17 @@
 package lib
 
 import (
-	"Desktop/mr/structs"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
 
-func Reduce(file structs.File, reduceIndex int) structs.File {
-	if reduceIndex < 0 || reduceIndex >= len(file.ReducePaths) {
-		return file
-	}
-
+func Reduce(reduce_path string) string {
 	counts := make(map[string]int)
-	values, err := os.ReadFile(file.ReducePaths[reduceIndex])
+	values, err := os.ReadFile(reduce_path)
 	if err != nil {
-		return file
+		return reduce_path
 	}
 
 	for _, line := range strings.Split(string(values), "\n") {
@@ -30,15 +26,21 @@ func Reduce(file structs.File, reduceIndex int) structs.File {
 		counts[key] += count
 	}
 
-	fileCSV := strings.TrimSuffix(file.Path, ".txt") + "r_" + strconv.Itoa(reduceIndex) + ".csv"
+	fileCSV := strings.TrimSuffix(reduce_path, ".csv") + "_reduced.csv"
 	var csvContent strings.Builder
-	for key, value := range counts {
+	keys := make([]string, 0, len(counts))
+	for key := range counts {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+
+	for _, key := range keys {
+		value := counts[key]
 		csvContent.WriteString(key + "," + strconv.Itoa(value) + "\n")
 	}
 	if err := os.WriteFile(fileCSV, []byte(csvContent.String()), 0644); err != nil {
-		return file
+		return reduce_path
 	}
 
-	file.OutputPaths[reduceIndex] = fileCSV
-	return file
+	return fileCSV
 }

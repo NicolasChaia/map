@@ -4,6 +4,8 @@ type StatusFile int
 
 const (
 	NotProcessed StatusFile = iota
-	InProgress
-	Processed
+	MapInProgress
+	Mapped
+	ReduceInProgress
+	Finished
 )
